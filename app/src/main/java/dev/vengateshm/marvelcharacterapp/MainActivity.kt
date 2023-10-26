@@ -18,6 +18,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import dagger.hilt.android.AndroidEntryPoint
 import dev.vengateshm.marvelcharacterapp.ui.theme.MarvelCharacterAppJetpackComposeUdemyTheme
 import dev.vengateshm.marvelcharacterapp.view.CharacterDetailScreen
 import dev.vengateshm.marvelcharacterapp.view.CharactersBottomNav
@@ -32,6 +33,7 @@ sealed class Destination(val route: String) {
     }
 }
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
