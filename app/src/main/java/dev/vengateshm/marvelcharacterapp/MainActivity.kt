@@ -3,6 +3,7 @@ package dev.vengateshm.marvelcharacterapp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,6 +25,7 @@ import dev.vengateshm.marvelcharacterapp.view.CharacterDetailScreen
 import dev.vengateshm.marvelcharacterapp.view.CharactersBottomNav
 import dev.vengateshm.marvelcharacterapp.view.CollectionScreen
 import dev.vengateshm.marvelcharacterapp.view.LibraryScreen
+import dev.vengateshm.marvelcharacterapp.viewmodel.LibraryApiViewModel
 
 sealed class Destination(val route: String) {
     object Library : Destination("library")
@@ -35,6 +37,9 @@ sealed class Destination(val route: String) {
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    private val viewModel by viewModels<LibraryApiViewModel>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -45,7 +50,10 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
-                    CharactersScaffold(navController = navController)
+                    CharactersScaffold(
+                        navController = navController,
+                        viewModel = viewModel
+                    )
                 }
             }
         }
@@ -54,7 +62,7 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CharactersScaffold(navController: NavHostController) {
+fun CharactersScaffold(navController: NavHostController, viewModel: LibraryApiViewModel) {
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -63,12 +71,15 @@ fun CharactersScaffold(navController: NavHostController) {
         }
     ) { paddingValues ->
         NavHost(
-            modifier = Modifier.padding(paddingValues),
             navController = navController,
             startDestination = Destination.Library.route
         ) {
             composable(Destination.Library.route) {
-                LibraryScreen()
+                LibraryScreen(
+                    navController = navController,
+                    viewModel = viewModel,
+                    paddingValues = paddingValues
+                )
             }
             composable(Destination.Collection.route) {
                 CollectionScreen()
