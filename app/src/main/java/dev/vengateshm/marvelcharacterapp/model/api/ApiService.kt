@@ -4,6 +4,7 @@ import dev.vengateshm.marvelcharacterapp.BuildConfig
 import dev.vengateshm.marvelcharacterapp.getHash
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -14,7 +15,7 @@ object ApiService {
         val timestamp = System.currentTimeMillis().toString()
         val apiKey = BuildConfig.MARVEL_KEY
         val apiSecret = BuildConfig.MARVEL_SECRET
-        val hash = getHash(timestamp, apiKey, apiSecret)
+        val hash = getHash(timestamp = timestamp, privateKey = apiSecret, publicKey = apiKey)
 
         val clientInterceptor = Interceptor { chain ->
             var request = chain.request()
@@ -27,9 +28,15 @@ object ApiService {
             chain.proceed(request)
         }
 
-        val client = OkHttpClient.Builder()
+        val clientBuilder = OkHttpClient.Builder()
             .addInterceptor(clientInterceptor)
-            .build()
+        if (BuildConfig.DEBUG) {
+            clientBuilder.addInterceptor(HttpLoggingInterceptor().apply {
+                level = HttpLoggingInterceptor.Level.BODY
+            })
+        }
+
+        val client = clientBuilder.build()
 
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
