@@ -1,11 +1,11 @@
 package dev.vengateshm.marvelcharacterapp
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -15,6 +15,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -25,6 +26,7 @@ import dev.vengateshm.marvelcharacterapp.view.CharacterDetailScreen
 import dev.vengateshm.marvelcharacterapp.view.CharactersBottomNav
 import dev.vengateshm.marvelcharacterapp.view.CollectionScreen
 import dev.vengateshm.marvelcharacterapp.view.LibraryScreen
+import dev.vengateshm.marvelcharacterapp.viewmodel.CollectionDbViewModel
 import dev.vengateshm.marvelcharacterapp.viewmodel.LibraryApiViewModel
 
 sealed class Destination(val route: String) {
@@ -38,7 +40,8 @@ sealed class Destination(val route: String) {
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val viewModel by viewModels<LibraryApiViewModel>()
+    private val libraryApiViewModel by viewModels<LibraryApiViewModel>()
+    private val collectionDbViewModel by viewModels<CollectionDbViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,7 +55,8 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
                     CharactersScaffold(
                         navController = navController,
-                        viewModel = viewModel
+                        libraryApiViewModel = libraryApiViewModel,
+                        collectionDbViewModel = collectionDbViewModel
                     )
                 }
             }
@@ -62,8 +66,14 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CharactersScaffold(navController: NavHostController, viewModel: LibraryApiViewModel) {
+fun CharactersScaffold(
+    navController: NavHostController,
+    libraryApiViewModel: LibraryApiViewModel,
+    collectionDbViewModel: CollectionDbViewModel
+) {
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
+
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         bottomBar = {
@@ -77,7 +87,7 @@ fun CharactersScaffold(navController: NavHostController, viewModel: LibraryApiVi
             composable(Destination.Library.route) {
                 LibraryScreen(
                     navController = navController,
-                    viewModel = viewModel,
+                    viewModel = libraryApiViewModel,
                     paddingValues = paddingValues
                 )
             }
@@ -85,7 +95,19 @@ fun CharactersScaffold(navController: NavHostController, viewModel: LibraryApiVi
                 CollectionScreen()
             }
             composable(Destination.CharacterDetail.route) { navBackStackEntry ->
-                CharacterDetailScreen()
+                val characterId =
+                    navBackStackEntry.arguments?.getString("characterId")?.toIntOrNull()
+                if (characterId == null) {
+                    Toast.makeText(context, "Character id is required", Toast.LENGTH_SHORT).show()
+                } else {
+                    libraryApiViewModel.getSingleCharacter(characterId)
+                    CharacterDetailScreen(
+                        libraryApiViewModel = libraryApiViewModel,
+                        collectionDbViewModel = collectionDbViewModel,
+                        paddingValues = paddingValues,
+                        navController = navController
+                    )
+                }
             }
         }
     }

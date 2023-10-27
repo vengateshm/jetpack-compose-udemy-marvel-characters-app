@@ -57,6 +57,10 @@ fun LibraryScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         OutlinedTextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            label = { Text(text = "Search a character") },
             value = queryText.value,
             onValueChange = viewModel::onQueryUpdate,
             keyboardOptions = KeyboardOptions(

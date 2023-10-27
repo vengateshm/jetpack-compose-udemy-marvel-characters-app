@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -19,8 +20,12 @@ class LibraryApiViewModel @Inject constructor(
     private val apiRepo: MarvelApiRepo
 ) : ViewModel() {
     val result = apiRepo.characters
-    val queryText = MutableStateFlow("")
     private val queryInput = Channel<String>(Channel.CONFLATED)
+
+    private val _queryText = MutableStateFlow("")
+    val queryText = _queryText.asStateFlow()
+
+    val characterDetails = apiRepo.characterDetail
 
     init {
         retrieveCharacters()
@@ -41,7 +46,11 @@ class LibraryApiViewModel @Inject constructor(
     private fun validateQuery(query: String): Boolean = query.length >= 2
 
     fun onQueryUpdate(query: String) {
-        queryText.value = query
+        _queryText.value = query
         queryInput.trySend(query)
+    }
+
+    fun getSingleCharacter(id: Int) {
+        apiRepo.getSingleCharacter(id)
     }
 }
