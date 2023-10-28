@@ -7,6 +7,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import dev.vengateshm.marvelcharacterapp.connectivity.ConnectivityMonitor
+import dev.vengateshm.marvelcharacterapp.connectivity.ConnectivityMonitor.Companion.getInstance
 import dev.vengateshm.marvelcharacterapp.model.db.CharacterDao
 import dev.vengateshm.marvelcharacterapp.model.db.CollectionDB
 import dev.vengateshm.marvelcharacterapp.model.db.CollectionDBRepo
@@ -41,5 +43,11 @@ class DatabaseModule {
     @Singleton
     fun provideCollectionDBRepo(characterDao: CharacterDao, noteDao: NoteDao): CollectionDBRepo {
         return CollectionDBRepoImpl(characterDao, noteDao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideConnectivityMonitor(@ApplicationContext context: Context): ConnectivityMonitor {
+        return ConnectivityMonitor.getInstance(context)
     }
 }

@@ -3,6 +3,7 @@ package dev.vengateshm.marvelcharacterapp.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.vengateshm.marvelcharacterapp.connectivity.ConnectivityMonitor
 import dev.vengateshm.marvelcharacterapp.model.api.MarvelApiRepo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -17,7 +18,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LibraryApiViewModel @Inject constructor(
-    private val apiRepo: MarvelApiRepo
+    private val apiRepo: MarvelApiRepo,
+    connectivityMonitor: ConnectivityMonitor
 ) : ViewModel() {
     val result = apiRepo.characters
     private val queryInput = Channel<String>(Channel.CONFLATED)
@@ -26,6 +28,7 @@ class LibraryApiViewModel @Inject constructor(
     val queryText = _queryText.asStateFlow()
 
     val characterDetails = apiRepo.characterDetail
+    val networkAvailable = connectivityMonitor
 
     init {
         retrieveCharacters()

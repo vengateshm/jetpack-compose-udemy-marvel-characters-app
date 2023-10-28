@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import dev.vengateshm.marvelcharacterapp.Destination
+import dev.vengateshm.marvelcharacterapp.connectivity.ConnectivityObservable
 import dev.vengateshm.marvelcharacterapp.model.CharactersApiResponse
 import dev.vengateshm.marvelcharacterapp.model.api.NetworkResult
 import dev.vengateshm.marvelcharacterapp.viewmodel.LibraryApiViewModel
@@ -49,6 +50,8 @@ fun LibraryScreen(
 ) {
     val result by viewModel.result.collectAsState()
     val queryText = viewModel.queryText.collectAsState()
+    val networkAvailable = viewModel.networkAvailable.observe()
+        .collectAsState(initial = ConnectivityObservable.Status.Available)
 
     Column(
         modifier = Modifier
@@ -56,6 +59,23 @@ fun LibraryScreen(
             .padding(bottom = paddingValues.calculateBottomPadding()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
+        if (networkAvailable.value == ConnectivityObservable.Status.Unavailable) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(color = Color.Red),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    modifier = Modifier.padding(16.dp),
+                    text = "Network Unavailable",
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
+        }
+
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
