@@ -46,9 +46,9 @@ class CollectionDbViewModel @Inject constructor(private val collectionDBRepo: Co
         }
     }
 
-    fun deleteCharacter(characterResult: CharacterResult) {
+    fun deleteCharacter(character: DBCharacter) {
         viewModelScope.launch(Dispatchers.IO) {
-            collectionDBRepo.deleteCharacter(DBCharacter.fromCharacter(characterResult))
+            collectionDBRepo.deleteCharacter(character)
         }
     }
 }

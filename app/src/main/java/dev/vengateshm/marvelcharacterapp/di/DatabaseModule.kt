@@ -12,6 +12,7 @@ import dev.vengateshm.marvelcharacterapp.model.db.CollectionDB
 import dev.vengateshm.marvelcharacterapp.model.db.CollectionDBRepo
 import dev.vengateshm.marvelcharacterapp.model.db.CollectionDBRepoImpl
 import dev.vengateshm.marvelcharacterapp.model.db.Constants.DB_NAME
+import dev.vengateshm.marvelcharacterapp.model.db.NoteDao
 import javax.inject.Singleton
 
 @Module
@@ -32,7 +33,13 @@ class DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideCollectionDBRepo(characterDao: CharacterDao): CollectionDBRepo {
-        return CollectionDBRepoImpl(characterDao)
+    fun noteDao(collectionDB: CollectionDB): NoteDao {
+        return collectionDB.noteDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCollectionDBRepo(characterDao: CharacterDao, noteDao: NoteDao): CollectionDBRepo {
+        return CollectionDBRepoImpl(characterDao, noteDao)
     }
 }

@@ -92,7 +92,10 @@ fun CharactersScaffold(
                 )
             }
             composable(Destination.Collection.route) {
-                CollectionScreen()
+                CollectionScreen(
+                    collectionDbViewModel = collectionDbViewModel,
+                    navController = navController
+                )
             }
             composable(Destination.CharacterDetail.route) { navBackStackEntry ->
                 val characterId =
